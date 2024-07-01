@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
-import { HypersignMailClient } from './mail-clinet';
+import { HypersignMailClient } from './mail-clinet.service';
 @Module({
   imports: [
     BullModule.forRoot({
