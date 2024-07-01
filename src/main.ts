@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { MailClientModule } from './mail-client.module';
+import { HypersignMailClientModule } from './mail-client.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(MailClientModule);
+  const app = await NestFactory.create(HypersignMailClientModule);
   await app.listen(3000);
 }
 bootstrap();
