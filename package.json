@@ -1,14 +1,14 @@
 {
   "name": "hypersign-mail-client-nest",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "author": "",
-  "private": true,
+  "private": false,
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "build": "rimraf packages && concurrently \"tsc -p libs/hypersign-mail-client/tsconfig.lib.json\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "bull": "^4.15.0",
     "bullmq": "^5.8.3",
+    "concurrently": "^8.2.2",
     "ioredis": "^5.4.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
@@ -61,7 +62,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -69,7 +70,17 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "^@app/hypersign-mail-client(|/.*)$": "<rootDir>/libs/hypersign-mail-client/src/$1"
+    }
+  },
+  "repository": {
+    "url": "https://github.com/hypersign-protocol/hypersign-mail-client-nest.git"
   }
 }
