@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 @Injectable()
 export class HypersignMailClient {
-  constructor(@InjectQueue('mail-queue') private readonly queue: Queue) {}
+  constructor(@InjectQueue('mail-queue') private readonly queue: Queue) { }
   async addJobsInBulk(
     jobs: { serverName: string; to: string; subject: string; message: any }[],
   ) {
