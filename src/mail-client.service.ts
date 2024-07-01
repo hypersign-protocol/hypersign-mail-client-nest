@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 @Injectable()
 export class HypersignMailClient {
@@ -7,6 +7,7 @@ export class HypersignMailClient {
   async addJobsInBulk(
     jobs: { serverName: string; to: string; subject: string; message: any }[],
   ) {
+    Logger.log('addJobsInBulk() method starts', 'HypersignMailClient');
     const bulkJobs = jobs.map((job) => ({
       name: 'sendMail',
       data: {
