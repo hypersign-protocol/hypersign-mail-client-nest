@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 @Injectable()
-export class MailService {
+export class HypersignMailClient {
   constructor(@InjectQueue('mail-queue') private readonly queue: Queue) {}
   async addJobsInBulk(
     jobs: { serverName: string; to: string; subject: string; message: any }[],

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
-import { MailService } from './mail-clinet';
+import { HypersignMailClient } from './mail-clinet';
 @Module({
   imports: [
     BullModule.forRoot({
@@ -12,6 +12,6 @@ import { MailService } from './mail-clinet';
     BullModule.registerQueue({ name: 'mail-queue' }),
   ],
   controllers: [],
-  providers: [MailService],
+  providers: [HypersignMailClient],
 })
 export class HypersignMailClientModule {}
