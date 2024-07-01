@@ -14,4 +14,4 @@ import { MailService } from './mail-clinet';
   controllers: [],
   providers: [MailService],
 })
-export class MailClientModule {}
+export class HypersignMailClientModule {}
