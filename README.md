@@ -46,7 +46,7 @@ import { BullModule } from '@nestjs/bullmq';
  ```
 
  ##### Step 4: Create a BullMQ Queue Module
- 1. Generate a new module and service and controller for BullMQ implementation
+ 1. Generate a new module, service and controller for BullMQ implementation
   ```js
    nest g module bull-queue
    nest g service bull-queue
