@@ -19,7 +19,7 @@ export class HypersignMailClientModule {
       module: HypersignMailClientModule,
       imports: [
         BullModule.forRoot({
-          connection: redis || { host: "localhost", port: 6379 },
+          connection: redis || { host: 'localhost', port: 6379 },
         }),
         BullModule.registerQueue({
           name: queueName || 'mail-queue',
@@ -27,7 +27,6 @@ export class HypersignMailClientModule {
       ],
       providers: [HypersignMailClient],
       exports: [HypersignMailClient],
-    }
+    };
   }
 }
-
