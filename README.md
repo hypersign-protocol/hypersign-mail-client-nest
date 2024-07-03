@@ -1,73 +1,127 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+### Using BullMQ in NestJS Project
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+#### Introduction
+This document covers how to integrate BullMQ into a NestJS project to manage queues. BullMQ is a robust library built on top of Redis, providing reliable job processing capabilties.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+#### Prerequisites
+ - Node.js and npm installed
+ - NestJS CLI installed( `npm install -g @nestjs/cli`)
+ - Redis server running
+ > **NOTE:**-  Ensure you are using Node.js version 18 for compatibility.
+##### Step 1: Set Up Your NestJS Project
+1. Create a new Project
+ ```js 
+  nest new ${project_name}
+  ``` 
+2. Navigate to the project
+  ```js
+ cd project_name  // navigate to existing project or newly created project.
+  ```
+##### Step 2: Install Required Packages
+ 1. Install BullMQ and Redis packages
+  ```js
+    npm install @nestjs/bullmq @nestjs/bull bullmq bull ioredis
+  ```
 
-## Description
+##### Step 3: Configure BullMQ
+ 1. Configure the BullModule in `AppModule`:
+ ```js
+ // app.module.ts
+import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+@Module({
+  imports: [
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',// or pass your own redis host
+        port: 6379, // or pass your own redis port
+      },
+    }),
+    BullQueueModule
+  ],
+    controllers: [],// Add your controller if any
+  providers: []// Add your service,
+  })
+  export class AppModule{}
+ ```
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+ ##### Step 4: Create a BullMQ Queue Module
+ 1. Generate a new module and service and controller for BullMQ implementation
+  ```js
+   nest g module bull-queue
+   nest g service bull-queue
+   nest g controller bull-queue
+  ```
+  2. Set up the queue in the module:
+   ```js
+     // bull-queue.module.ts
+     import {Module} from '@nestjs/common'
+     import {BullModule} from '@nestjs/bullmq'
+     import {BullQueueService} from './bull-queue.service';
+     import { BullQueueController } from './bull-queue.controller';
 
-## Installation
 
-```bash
-$ yarn install
-```
+     @Module({
+      import:[
+      BullModule.registerQueue({
+        name:'mail-queue'
+      })],
+      providers:[BullQueueService],
+      exports:[BullQueueService],
+      controllers:[BullQueueController]
+     })
+     export class BullQueueModule {}
+   ```
+   3. Implement the queue service:
+   ```js
+    //bull-queue.service.ts
+    import {Injectable} from '@nestjs/common';
+    import {InjectQueue} from '@nestjs/bull';
+    import {Queue} from 'bullmq'
 
-## Running the app
+    @Injectable()
+    export class BullQueueService{
+      constructor(@InjectQueue('mail-queue') private readonly myQueue: Queue){}
+      async addJobsInBulk(jobs: { serverName: string, to: string; subject: string; message: any }[])
+      const bulkJobs= jobs.map(job=>({
+        name:"sendMail", // name of the job
+        data:{
+          serverName:job.serverName,
+          to:job.to,
+          subject: job.subject,
+          message:job.message
+        }
+      }))
+      await this.myQueue.addBulk(bulkJobs)// addBulk is used to push list of jobs at a time in queue
+    }
+   ```
+  > Note use `await this.myQueue.add('job-name', data)` to add single job to the queue.
 
-```bash
-# development
-$ yarn run start
+   4. Implement the controller to handle job creation:
+   ```js
+     import { Controller, Post, Body } from '@nestjs/common';
+     import { BullQueueService } from './bull-queue.service';
+     @controller('bull-queue')
+     export class BullQueueController{
+      constructor(private readonly bullQueueService:BullQueueService){}
+      @Post('add-job')
+      async addJob(@Body() data: { serverName: string; to: string; subject: string; message: any }[],){
+        await this.bullQueueService.addJobsInBulk(data);
+        return {message:'JOb added to the queue successfully'}
+      }
+     }
+   ```
+   ##### Step 6: Running the Application:
+   1. Start the NestJS application:
+   ```js
+     npm run start
+   ```
+   2. Test the Queue by Sending a POST Request:
+  Use a tool like postman and send a request to `http://localhost:3000/bull-queue/add-job`
+   ```js
+[
+     {
+    "serverName":"XYZ", "to":"xyz@gmail.com","subject":"testing mail server","message":"<h1>Hi</h1>"
+},]
+   ```
 
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
