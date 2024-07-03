@@ -3,6 +3,18 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true
+  },
+  "projects": {
+    "hypersign-mail-client": {
+      "type": "library",
+      "root": "libs/hypersign-mail-client",
+      "entryFile": "index",
+      "sourceRoot": "libs/hypersign-mail-client/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/hypersign-mail-client/tsconfig.lib.json"
+      }
+    }
   }
 }

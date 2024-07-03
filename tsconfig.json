@@ -16,6 +16,14 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/hypersign-mail-client": [
+        "libs/hypersign-mail-client/src"
+      ],
+      "@app/hypersign-mail-client/*": [
+        "libs/hypersign-mail-client/src/*"
+      ]
+    }
   }
 }
